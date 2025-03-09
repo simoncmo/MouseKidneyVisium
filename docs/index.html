@@ -4,10 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shiny App</title>
-    <script
-      src="./shinylive/load-shinylive-sw.js"
-      type="module"
-    ></script>
+    <script>
+    async function fetchAppJson() {
+      const response = await fetch('https://github.com/simoncmo/MouseKidneyVisium/releases/download/v1.0.0/app.json');
+      if (!response.ok) {
+        throw new Error('Failed to fetch app.json');
+      }
+      const appJson = await response.json();
+      window.shinyliveAppJson = appJson;
+    }
+    fetchAppJson().then(() => {
+      const script = document.createElement('script');
+      script.src = '/MouseKidneyVisium/shinylive/load_shinylive_sw.js';
+      script.onload = function() {
+        if (window.shinyliveAppJson) {
+          window.shinyliveAppJsonPromise = Promise.resolve(window.shinyliveAppJson);
+        }
+      };
+      document.body.appendChild(script);
+    }).catch(error => console.error(error));
+    </script>
     <script type="module">
       import { runExportedApp } from "./shinylive/shinylive.js";
       runExportedApp({
